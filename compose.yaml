@@ -1,0 +1,31 @@
+services:
+  webapp:
+    build: .
+    ports:
+      - "8080:8080"
+    links:
+      - database
+    environment:
+      JDBC_URL: jdbc:mysql://database:3306/social_network
+      JDBC_USERNAME: social_network_user
+      JDBC_PASSWORD: social_network_secret
+    volumes:
+      - type: bind
+        source: ./wait-for-it.sh
+        target: /wait-for-it.sh
+        read_only: true
+    command: ["./wait-for-it.sh", "--timeout=90", "database:3306", "--", "java", "-jar", "app.jar"]
+
+  database:
+    image: mysql:8-debian
+    restart: always
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: y
+      MYSQL_DATABASE: social_network
+      MYSQL_USER: social_network_user
+      MYSQL_PASSWORD: social_network_secret
+    volumes:
+      - type: bind
+        source: ./init.sql
+        target: /docker-entrypoint-initdb.d/init.sql
+        read_only: true
