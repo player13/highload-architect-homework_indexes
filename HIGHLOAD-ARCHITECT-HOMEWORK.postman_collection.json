@@ -12,7 +12,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"username\": \"elon71\",\r\n    \"password\": \"secret\",\r\n    \"firstName\": \"Elon\",\r\n    \"lastName\": \"Musk\",\r\n    \"age\": \"51\",\r\n    \"city\": \"Hawthorn\",\r\n    \"interests\": [\r\n        \"rockets\",\r\n        \"cars\",\r\n        \"e-payments\"\r\n    ]\r\n}",
+					"raw": "{\r\n    \"username\": \"elon71\",\r\n    \"password\": \"secret\",\r\n    \"firstName\": \"Elon\",\r\n    \"lastName\": \"Musk\",\r\n    \"sex\": \"MALE\",\r\n    \"age\": \"51\",\r\n    \"city\": \"Hawthorn\",\r\n    \"interests\": [\r\n        \"rockets\",\r\n        \"cars\",\r\n        \"e-payments\"\r\n    ]\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"

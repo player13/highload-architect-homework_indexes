@@ -6,8 +6,8 @@ import com.github.player13.domain.User
 class UserService(
     private val userRepository: UserRepository
 ) {
-    fun register(user: User) =
-        userRepository.create(user)
+    fun register(user: User, encryptedPassword: String) =
+        userRepository.create(user, encryptedPassword)
 
     fun getAll() =
         userRepository.readAll()

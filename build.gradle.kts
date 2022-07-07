@@ -1,6 +1,9 @@
 val ktorVersion: String by project
 val kotlinVersion: String by project
 val logbackVersion: String by project
+val hikariVersion: String by project
+val mysqlConnectorVersion: String by project
+val jBcryptVersion: String by project
 
 plugins {
     application
@@ -28,11 +31,11 @@ dependencies {
     implementation("io.ktor:ktor-server-content-negotiation-jvm:$ktorVersion")
     implementation("io.ktor:ktor-serialization-gson-jvm:$ktorVersion")
     implementation("io.ktor:ktor-server-netty-jvm:$ktorVersion")
+
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
-
-    implementation("com.zaxxer:HikariCP:5.0.1")
-    implementation("mysql:mysql-connector-java:8.0.29")
-
+    implementation("com.zaxxer:HikariCP:$hikariVersion")
+    implementation("mysql:mysql-connector-java:$mysqlConnectorVersion")
+    implementation("org.mindrot:jbcrypt:$jBcryptVersion")
 
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktorVersion")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion")

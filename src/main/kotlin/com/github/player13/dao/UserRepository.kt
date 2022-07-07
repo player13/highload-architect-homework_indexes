@@ -14,7 +14,7 @@ class UserRepository(
     private val pool: HikariPool
 ) {
 
-    fun create(user: User) {
+    fun create(user: User, encryptedPassword: String) {
         pool.connection.use { connection ->
             val existingUser = connection.selectUserByUsername(user.username)
             if (existingUser != null) {
@@ -29,7 +29,7 @@ class UserRepository(
                 }
 
             val userId = run {
-                connection.insert(user.toUserEntity(cityId))
+                connection.insert(user.toUserEntity(cityId, encryptedPassword))
                 statement.selectLastInsertedId()
             }
 
@@ -49,14 +49,9 @@ class UserRepository(
             val cities = statement.selectAllCities().associateBy { it.id }
             val interests = statement.selectAllInterests().groupBy { it.userId }
             users.map { user: UserEntity ->
-                User(
-                    username = user.username,
-                    password = user.password,
-                    firstName = user.firstName,
-                    lastName = user.lastName,
-                    age = user.age,
-                    city = cities[user.cityId]?.name ?: throw CityNotFoundException(),
-                    interests = interests[user.id]?.map { it.description } ?: listOf(),
+                user.toDomain(
+                    cities[user.cityId]?.name ?: throw CityNotFoundException(),
+                    interests[user.id]?.map { it.description } ?: listOf(),
                 )
             }
         }
@@ -66,30 +61,28 @@ class UserRepository(
             val user = connection.selectUserByUsername(username) ?: throw UserNotFoundException()
             val city = connection.selectCityById(user.cityId) ?: throw CityNotFoundException()
             val interests = connection.selectInterestsByUserId(user.id!!)
-            User(
-                username = user.username,
-                password = user.password,
-                firstName = user.firstName,
-                lastName = user.lastName,
-                age = user.age,
-                city = city.name,
-                interests = interests.map { it.description },
-            )
+            user.toDomain(city.name, interests.map { it.description })
+        }
+
+    fun readUserPassword(username: String): String =
+        pool.connection.use { connection ->
+            connection.selectPasswordHashByUsername(username) ?: throw UserNotFoundException()
         }
 
     private fun Connection.insert(user: UserEntity) {
         prepareStatement(
             """
-            insert into user (username, password, first_name, last_name, age, city_id)
-            values (?, ?, ?, ?, ?, ?)
+            insert into user (username, encrypted_password, first_name, last_name, sex, age, city_id)
+            values (?, ?, ?, ?, ?, ?, ?)
             """.trimIndent()
         ).use {
             it.setString(1, user.username)
-            it.setString(2, user.password)
+            it.setString(2, user.encryptedPassword)
             it.setString(3, user.firstName)
             it.setString(4, user.lastName)
-            it.setShort(5, user.age)
-            it.setLong(6, user.cityId)
+            it.setString(5, user.sex.name)
+            it.setShort(6, user.age)
+            it.setLong(7, user.cityId)
             it.executeUpdate()
         }
     }
@@ -200,13 +193,27 @@ class UserRepository(
             }
         }
 
+    private fun Connection.selectPasswordHashByUsername(username: String): String? =
+        prepareStatement("select encrypted_password from user where username = ?").use { statement ->
+            statement.setString(1, username)
+            statement.execute()
+            statement.resultSet.use {
+                if (it.next()) {
+                    it.getString("encrypted_password")
+                } else {
+                    null
+                }
+            }
+        }
+
     private fun ResultSet.toUserEntity() =
         UserEntity(
             id = getLong("id"),
             username = getString("username"),
-            password = getString("password"),
+            encryptedPassword = getString("encrypted_password"),
             firstName = getString("first_name"),
             lastName = getString("last_name"),
+            sex = enumValueOf(getString("sex")),
             age = getShort("age"),
             cityId = getLong("city_id"),
         )
@@ -224,12 +231,13 @@ class UserRepository(
             description = getString("description"),
         )
 
-    private fun User.toUserEntity(cityId: Long) =
+    private fun User.toUserEntity(cityId: Long, encryptedPassword: String) =
         UserEntity(
             username = username,
-            password = password,
+            encryptedPassword = encryptedPassword,
             firstName = firstName,
             lastName = lastName,
+            sex = sex,
             age = age,
             cityId = cityId,
         )
@@ -247,4 +255,16 @@ class UserRepository(
             )
         }
 
+    private fun UserEntity.toDomain(
+        city: String,
+        interests: List<String>
+    ) = User(
+        username = username,
+        firstName = firstName,
+        lastName = lastName,
+        sex = sex,
+        age = age,
+        city = city,
+        interests = interests,
+    )
 }

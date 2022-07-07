@@ -6,6 +6,7 @@ import io.ktor.server.application.install
 import io.ktor.server.auth.Authentication
 import io.ktor.server.auth.UserIdPrincipal
 import io.ktor.server.auth.basic
+import org.mindrot.jbcrypt.BCrypt
 
 const val BASIC_AUTH_SCOPE = "basic"
 
@@ -15,12 +16,13 @@ fun Application.configureAuthentication() {
             realm = "social network"
             validate { credentials ->
                 val user = try {
-                    userRepository.readByUsername(credentials.name)
+                    userRepository.readUserPassword(credentials.name)
                 } catch (e: UserNotFoundException) {
                     null
                 }
-                user?.takeIf { it.password == credentials.password }
-                    ?.let { UserIdPrincipal(it.username) }
+
+                user?.takeIf { BCrypt.checkpw(credentials.password, it) }
+                    ?.let { UserIdPrincipal(credentials.name) }
             }
         }
     }

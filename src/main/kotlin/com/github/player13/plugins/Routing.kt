@@ -1,7 +1,7 @@
 package com.github.player13.plugins
 
-import com.github.player13.api.UserDto
-import com.github.player13.api.UserRegistrationDto
+import com.github.player13.api.GetUserResponse
+import com.github.player13.api.UserRegistrationRequest
 import com.github.player13.domain.User
 import com.github.player13.exception.UserAlreadyExistsException
 import com.github.player13.exception.UserNotFoundException
@@ -14,14 +14,15 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
+import org.mindrot.jbcrypt.BCrypt
 
 fun Application.configureRouting() {
 
     routing {
         post("/users") {
-            val user = call.receive<UserRegistrationDto>()
+            val user = call.receive<UserRegistrationRequest>()
             try {
-                userService.register(user.toDomain())
+                userService.register(user.toDomain(), BCrypt.hashpw(user.password, BCrypt.gensalt()))
                 call.response.status(HttpStatusCode.Created)
             } catch (e: UserAlreadyExistsException) {
                 call.response.status(HttpStatusCode.BadRequest)
@@ -51,21 +52,22 @@ fun Application.configureRouting() {
 }
 
 private fun User.toDto() =
-    UserDto(
+    GetUserResponse(
         username = username,
         firstName = firstName,
         lastName = lastName,
+        sex = sex,
         age = age,
         city = city,
         interests = interests,
     )
 
-private fun UserRegistrationDto.toDomain() =
+private fun UserRegistrationRequest.toDomain() =
     User(
         username = username,
-        password = password,
         firstName = firstName,
         lastName = lastName,
+        sex = sex,
         age = age,
         city = city,
         interests = interests,

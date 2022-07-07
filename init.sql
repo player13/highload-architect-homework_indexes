@@ -8,13 +8,14 @@ CREATE TABLE city
 
 CREATE TABLE user
 (
-    id         BIGINT       NOT NULL AUTO_INCREMENT,
-    username   VARCHAR(256) NOT NULL,
-    password   VARCHAR(256) NOT NULL,
-    first_name VARCHAR(256) NOT NULL,
-    last_name  VARCHAR(256) NOT NULL,
-    age        SMALLINT     NOT NULL,
-    city_id    BIGINT       NOT NULL,
+    id                 BIGINT                  NOT NULL AUTO_INCREMENT,
+    username           VARCHAR(256)            NOT NULL,
+    encrypted_password VARCHAR(256)            NOT NULL,
+    first_name         VARCHAR(256)            NOT NULL,
+    last_name          VARCHAR(256)            NOT NULL,
+    sex                ENUM ('MALE', 'FEMALE') NOT NULL,
+    age                SMALLINT                NOT NULL,
+    city_id            BIGINT                  NOT NULL,
 
     PRIMARY KEY (id) -- , -- disabled due to restrictions of first version
     -- FOREIGN KEY (city_id) REFERENCES city (id),
