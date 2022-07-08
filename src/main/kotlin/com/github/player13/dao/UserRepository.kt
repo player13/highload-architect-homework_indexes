@@ -2,6 +2,7 @@ package com.github.player13.dao
 
 import com.github.player13.domain.User
 import com.github.player13.exception.CityNotFoundException
+import com.github.player13.exception.NoResultException
 import com.github.player13.exception.NotInsertedException
 import com.github.player13.exception.UserAlreadyExistsException
 import com.github.player13.exception.UserNotFoundException
@@ -16,8 +17,7 @@ class UserRepository(
 
     fun create(user: User, encryptedPassword: String) {
         pool.connection.use { connection ->
-            val existingUser = connection.selectUserByUsername(user.username)
-            if (existingUser != null) {
+            if (connection.existsUserByUsername(user.username)) {
                 throw UserAlreadyExistsException()
             }
 
@@ -158,6 +158,19 @@ class UserRepository(
                     it.toUserEntity()
                 } else {
                     null
+                }
+            }
+        }
+
+    private fun Connection.existsUserByUsername(username: String): Boolean =
+        prepareStatement("select exists(select id from user where username = ?) as result ").use { statement ->
+            statement.setString(1, username)
+            statement.execute()
+            statement.resultSet.use {
+                if (it.next()) {
+                    it.getBoolean("result")
+                } else {
+                    throw NoResultException()
                 }
             }
         }
