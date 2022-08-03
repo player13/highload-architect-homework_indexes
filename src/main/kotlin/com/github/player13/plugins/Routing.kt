@@ -31,7 +31,13 @@ fun Application.configureRouting() {
 
         authenticate(BASIC_AUTH_SCOPE) {
             get("/users") {
-                call.respond(userService.getAll().map { it.toDto() })
+                val firstName = call.request.queryParameters["firstName"]
+                val lastName = call.request.queryParameters["lastName"]
+                if (firstName.isNullOrBlank() && lastName.isNullOrBlank()) {
+                    call.respond(userService.getAll().map { it.toDto() })
+                } else {
+                    call.respond(userService.findByFirstAndLastNamePrefix(firstName ?: "", lastName ?: ""))
+                }
             }
 
             get("/users/{username}") {

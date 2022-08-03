@@ -15,13 +15,13 @@ fun Application.configureAuthentication() {
         basic(BASIC_AUTH_SCOPE) {
             realm = "social network"
             validate { credentials ->
-                val user = try {
-                    userRepository.readUserPassword(credentials.name)
+                val passwordHash = try {
+                    userService.findPasswordHashByUsername(credentials.name)
                 } catch (e: UserNotFoundException) {
                     null
                 }
 
-                user?.takeIf { BCrypt.checkpw(credentials.password, it) }
+                passwordHash?.takeIf { BCrypt.checkpw(credentials.password, it) }
                     ?.let { UserIdPrincipal(credentials.name) }
             }
         }

@@ -1,6 +1,7 @@
 services:
   webapp:
     build: .
+    restart: always
     ports:
       - "8080:8080"
     links:
@@ -24,8 +25,21 @@ services:
       MYSQL_DATABASE: social_network
       MYSQL_USER: social_network_user
       MYSQL_PASSWORD: social_network_secret
+    command: ["--secure-file-priv=/docker-entrypoint-initdb.d"]
     volumes:
       - type: bind
         source: ./init.sql
-        target: /docker-entrypoint-initdb.d/init.sql
+        target: /docker-entrypoint-initdb.d/1.init.sql
+        read_only: true
+      - type: bind
+        source: ./fill.sql
+        target: /docker-entrypoint-initdb.d/2.fill.sql
+        read_only: true
+      - type: bind
+        source: ./generated_users.csv
+        target: /docker-entrypoint-initdb.d/generated_users.csv
+        read_only: true
+      - type: bind
+        source: ./generated_interests.csv
+        target: /docker-entrypoint-initdb.d/generated_interests.csv
         read_only: true
