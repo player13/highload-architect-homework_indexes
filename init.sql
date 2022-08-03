@@ -8,7 +8,8 @@ CREATE TABLE user
     age                SMALLINT                NOT NULL,
     city               VARCHAR(256)            NOT NULL,
 
-    PRIMARY KEY (username)
+    PRIMARY KEY (username),
+    INDEX user_last_name_first_name_idx (last_name, first_name)
 );
 
 CREATE TABLE interest

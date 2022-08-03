@@ -20,6 +20,8 @@ services:
   database:
     image: mysql:8-debian
     restart: always
+    ports:
+      - "3306:3306"
     environment:
       MYSQL_RANDOM_ROOT_PASSWORD: y
       MYSQL_DATABASE: social_network
