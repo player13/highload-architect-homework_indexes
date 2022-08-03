@@ -101,6 +101,50 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "Get users by first and last name",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "elon71",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "secret",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/users?firstName=El&lastName=Mus",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"users"
+					],
+					"query": [
+						{
+							"key": "firstName",
+							"value": "El"
+						},
+						{
+							"key": "lastName",
+							"value": "Mus"
+						}
+					]
+				}
+			},
+			"response": []
 		}
 	]
 }
