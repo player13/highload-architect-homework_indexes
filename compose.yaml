@@ -30,18 +30,18 @@ services:
     command: ["--secure-file-priv=/docker-entrypoint-initdb.d"]
     volumes:
       - type: bind
-        source: ./init.sql
+        source: ./db/init.sql
         target: /docker-entrypoint-initdb.d/1.init.sql
         read_only: true
       - type: bind
-        source: ./fill.sql
+        source: ./db/fill.sql
         target: /docker-entrypoint-initdb.d/2.fill.sql
         read_only: true
       - type: bind
-        source: ./generated_users.csv
+        source: ./db/generated_users.csv
         target: /docker-entrypoint-initdb.d/generated_users.csv
         read_only: true
       - type: bind
-        source: ./generated_interests.csv
+        source: ./db/generated_interests.csv
         target: /docker-entrypoint-initdb.d/generated_interests.csv
         read_only: true
